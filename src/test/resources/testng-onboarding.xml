@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+
+<!--
+  ONBOARDING (`mvn test -Ponboarding`) — the 27-step onboarding flow, phase by
+  phase. Each test starts from a first-run app on purpose. Run it when
+  onboarding changes or on request; regression and smoke never include it.
+-->
+<suite name="iOS Nutrition App onboarding" verbose="1" parallel="false">
+
+    <test name="onboarding-smoke">
+        <groups>
+            <run>
+                <include name="smoke"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.portfolio.ios.tests.OnboardingSmokeTest"/>
+        </classes>
+    </test>
+
+    <test name="phases">
+        <groups>
+            <run>
+                <include name="phase1"/>
+                <include name="phase2"/>
+                <include name="phase3"/>
+                <include name="phase4"/>
+                <include name="phase5"/>
+                <include name="phase6"/>
+                <include name="phase7"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.portfolio.ios.tests.Phase1IntroTest"/>
+            <class name="com.portfolio.ios.tests.Phase2ProfileBasicsTest"/>
+            <class name="com.portfolio.ios.tests.Phase3DietLifestyleTest"/>
+            <class name="com.portfolio.ios.tests.Phase4InterstitialsTest"/>
+            <class name="com.portfolio.ios.tests.Phase5BodyMetricsTest"/>
+            <class name="com.portfolio.ios.tests.Phase6ActivityHealthTest"/>
+            <class name="com.portfolio.ios.tests.Phase7HoldGateTest"/>
+        </classes>
+    </test>
+
+</suite>

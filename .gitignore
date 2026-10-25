@@ -1,0 +1,17 @@
+target/
+*.iml
+.idea/
+src/test/resources/config.properties
+src/test/resources/devices/*.local.properties
+*.ipa
+*.app
+*.mobileprovision
+*.p12
+*.cer
+*.pem
+allure-results/
+allure-report/
+screenshots/
+traces/
+.DS_Store
+Thumbs.db

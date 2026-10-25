@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<!--
+  LOCATOR HEALTH (`mvn test -Phealth`) — a few minutes, read-only: checks that
+  the elements the tests rely on are still on each main screen. Run it on every
+  new build next to smoke: a UI change shows up here as "screen · element ·
+  MISSING" instead of as many failing tests.
+-->
+<suite name="iOS Nutrition App locator health" verbose="1" parallel="false">
+    <test name="health">
+        <groups>
+            <run>
+                <include name="health"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.portfolio.ios.tests.health.LocatorHealthTest"/>
+        </classes>
+    </test>
+</suite>

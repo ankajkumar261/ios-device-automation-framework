@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+
+<!--
+  REGRESSION (default: `mvn test`) — every app module, starting from a
+  freshly onboarded app. Onboarding itself does NOT run here: on the
+  simulator the first class onboards once (only if the app needs it) and
+  saves a baseline that every later class restores in seconds.
+
+  Other suites (see README):
+    mvn test -Psmoke        critical checks, a few minutes
+    mvn test -Ponboarding   the onboarding flow tests
+    mvn test -Pai           the AI-backed full journey
+    mvn test -Dgroups=ai    AI-backed module tests (meal plans, Reset Goals, coach, scan)
+
+  The `ai` group is excluded: those tests call the production backend.
+-->
+<suite name="iOS Nutrition App regression" verbose="1" parallel="false">
+
+
+    <!-- No device needed: proves executionMode selects the right capabilities. -->
+    <test name="config">
+        <groups>
+            <run>
+                <include name="config"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.portfolio.ios.core.DriverConfigTest"/>
+            <class name="com.portfolio.ios.core.ConnectedDeviceTest"/>
+            <class name="com.portfolio.ios.core.FailureClassifierTest"/>
+            <class name="com.portfolio.ios.core.HealSuggesterTest"/>
+            <class name="com.portfolio.ios.base.DeviceAvailabilityTest"/>
+        </classes>
+    </test>
+
+    <!-- Module 1: Home dashboard (starts from one onboarded state per class). -->
+    <test name="home">
+        <groups>
+            <run>
+                <include name="home"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.portfolio.ios.tests.home.HomeDashboardTest"/>
+        </classes>
+    </test>
+
+    <!-- Module 2: food search and manual logging. -->
+    <test name="food">
+        <groups>
+            <run>
+                <include name="food"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.portfolio.ios.tests.food.FoodLoggingTest"/>
+            <class name="com.portfolio.ios.tests.food.FoodEditDeleteTest"/>
+        </classes>
+    </test>
+
+    <!-- Module 5: water, weight and mood trackers. -->
+    <test name="trackers">
+        <groups>
+            <run>
+                <include name="trackers"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.portfolio.ios.tests.trackers.HomeTrackersTest"/>
+        </classes>
+    </test>
+
+    <!-- Module 6: activities (catalog, Describe, edit/delete, live workout). -->
+    <test name="activities">
+        <groups>
+            <run>
+                <include name="activities"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.portfolio.ios.tests.activities.ActivitiesTest"/>
+        </classes>
+    </test>
+
+    <!-- Module 7: intermittent fasting (FAST_010/011 skip on a real device). -->
+    <test name="fasting">
+        <groups>
+            <run>
+                <include name="fasting"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.portfolio.ios.tests.fasting.FastingTest"/>
+        </classes>
+    </test>
+
+    <!-- Module 8: meal plans. Tests that build a plan on the AI backend are in the
+         `ai` group and run only on demand: mvn test -Dgroups=ai -->
+    <test name="meals">
+        <groups>
+            <run>
+                <include name="meals"/>
+                <exclude name="ai"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.portfolio.ios.tests.meals.MealPlanTest"/>
+        </classes>
+    </test>
+
+    <!-- Module 9: profile and settings. PROF_011 (Reset Goals) uses the AI backend:
+         it is in the `ai` group and runs only on demand. -->
+    <test name="profile">
+        <groups>
+            <run>
+                <include name="profile"/>
+                <exclude name="ai"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.portfolio.ios.tests.profile.ProfileSettingsTest"/>
+        </classes>
+    </test>
+
+    <!-- Module 10: insights and calorie detail (INS_010 skips on a real device). -->
+    <test name="insights">
+        <groups>
+            <run>
+                <include name="insights"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.portfolio.ios.tests.insights.InsightsTest"/>
+        </classes>
+    </test>
+
+    <!-- Module 11: AI Coach. Local-rule checks run here; COACH_007/008 call the AI
+         backend and are in the `ai` group, run only on demand: mvn test -Dgroups=ai -->
+    <test name="coach">
+        <groups>
+            <run>
+                <include name="coach"/>
+                <exclude name="ai"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.portfolio.ios.tests.coach.CoachTest"/>
+        </classes>
+    </test>
+
+    <!-- Module 12: food scan. SCAN_003-006 need the food-recognition AI and are in the
+         `ai` group, run only on demand: mvn test -Dgroups=ai -->
+    <test name="scan">
+        <groups>
+            <run>
+                <include name="scan"/>
+                <exclude name="ai"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.portfolio.ios.tests.scan.ScanTest"/>
+        </classes>
+    </test>
+
+    <!-- Module 13: permissions declined (camera and voice checks are simulator-only). -->
+    <test name="permissions">
+        <groups>
+            <run>
+                <include name="permissions"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.portfolio.ios.tests.permissions.PermissionsTest"/>
+        </classes>
+    </test>
+
+    <!-- Module 4: past days and calendar (simulator-only; skips on a real device). -->
+    <test name="date">
+        <groups>
+            <run>
+                <include name="date"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.portfolio.ios.tests.date.DateNavigationTest"/>
+        </classes>
+    </test>
+
+    <!-- Module 14: one new user's first day end to end. Starts from wiped data and
+         onboards itself, so it runs last. -->
+    <test name="journey">
+        <groups>
+            <run>
+                <include name="journey"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.portfolio.ios.tests.journey.UserJourneyTest"/>
+        </classes>
+    </test>
+
+</suite>

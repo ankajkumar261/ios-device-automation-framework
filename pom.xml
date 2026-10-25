@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.portfolio.ios</groupId>
+  <artifactId>iOS-Nutrition-Automation</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>iOS-Nutrition-Automation</name>
+  <description>Appium / XCUITest automation framework for the Cal Care (iOS Nutrition App) iOS app</description>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.release>17</maven.compiler.release>
+
+    <appium.java.client.version>10.1.1</appium.java.client.version>
+    <selenium.version>4.49.0</selenium.version>
+    <testng.version>7.12.0</testng.version>
+    <allure.version>2.35.5</allure.version>
+    <allure.maven.plugin.version>2.18.0</allure.maven.plugin.version>
+    <surefire.version>3.5.2</surefire.version>
+    <!-- Weaves Allure's @Step / @Attachment so steps and their timings appear in reports. -->
+    <aspectj.version>1.9.25.1</aspectj.version>
+
+    <!-- Device targeting lives in src/test/resources/config.properties (the single
+         source of device truth). Override individual keys on the CLI with
+         -Diosautomation.<key>=... without editing anything. -->
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.appium</groupId>
+      <artifactId>java-client</artifactId>
+      <version>${appium.java.client.version}</version>
+      <!--
+        No Guava exclusion. AppiumBy touches com.google.common.base.Strings in
+        its class initialiser, so excluding Guava does not just risk a version
+        clash — it makes every AppiumBy.* call throw NoClassDefFoundError the
+        first time a locator is built.
+      -->
+    </dependency>
+
+    <dependency>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
+      <version>${testng.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.qameta.allure</groupId>
+      <artifactId>allure-testng</artifactId>
+      <version>${allure.version}</version>
+    </dependency>
+    <!--
+      Reads `xcrun devicectl list devices` JSON to find the phone on the USB
+      cable (ConnectedDevice). Same version java-client already ships at
+      runtime; declared because that copy is not on the compile classpath, and
+      Selenium's own JSON reader rejects devicectl's 64-bit unsigned numbers.
+    -->
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.13.2</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.13.0</version>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${surefire.version}</version>
+        <configuration>
+          <suiteXmlFiles>
+            <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
+          </suiteXmlFiles>
+          <!-- Tests drive a single shared simulator; never fork or parallelise. -->
+          <argLine>-javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"</argLine>
+          <forkCount>1</forkCount>
+          <reuseForks>true</reuseForks>
+          <trimStackTrace>false</trimStackTrace>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>${aspectj.version}</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+
+      <plugin>
+        <groupId>io.qameta.allure</groupId>
+        <artifactId>allure-maven</artifactId>
+        <version>${allure.maven.plugin.version}</version>
+        <configuration>
+          <resultsDirectory>${project.build.directory}/allure-results</resultsDirectory>
+          <reportDirectory>${project.build.directory}/allure-report</reportDirectory>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <!--
+      `mvn test -Dgroups=smoke` (or home, regression, p1, …).
+      Surefire ignores -Dgroups whenever suiteXmlFiles is set, so this profile —
+      active only when `groups` is given — empties the suite list and lets
+      Surefire discover the test classes and filter them by group.
+      Plain `mvn test` is unaffected and still runs testng.xml.
+    -->
+    <profile>
+      <id>groups</id>
+      <activation>
+        <property>
+          <name>groups</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <suiteXmlFiles combine.self="override"/>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <!-- Critical checks in a few minutes: mvn test -Psmoke -->
+    <profile>
+      <id>health</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <suiteXmlFiles combine.self="override">
+                <suiteXmlFile>src/test/resources/testng-health.xml</suiteXmlFile>
+              </suiteXmlFiles>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>smoke</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <suiteXmlFiles combine.self="override">
+                <suiteXmlFile>src/test/resources/testng-smoke.xml</suiteXmlFile>
+              </suiteXmlFiles>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <!-- The onboarding flow tests, on request: mvn test -Ponboarding -->
+    <profile>
+      <id>onboarding</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <suiteXmlFiles combine.self="override">
+                <suiteXmlFile>src/test/resources/testng-onboarding.xml</suiteXmlFile>
+              </suiteXmlFiles>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <!-- The AI-backed full journey: mvn test -Pai -->
+    <profile>
+      <id>ai</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <suiteXmlFiles combine.self="override">
+                <suiteXmlFile>src/test/resources/testng-ai.xml</suiteXmlFile>
+              </suiteXmlFiles>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>

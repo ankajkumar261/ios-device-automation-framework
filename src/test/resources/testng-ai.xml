@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+
+<!--
+  Full journey, including the AI-backed step 25.
+
+  Separate from testng.xml because this suite calls the app's production
+  backend and takes minutes. Run it deliberately:
+
+    mvn test -Dsurefire.suiteXmlFiles=src/test/resources/testng-ai.xml
+
+  It needs the simulator to itself: the hold gate and the plan reveal happen
+  only once, at the very end, and cannot be retried from a half-finished state.
+-->
+<suite name="iOS Nutrition App onboarding (full, AI-backed)" verbose="1" parallel="false">
+
+    <test name="full-journey">
+        <groups>
+            <run>
+                <include name="e2e"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.portfolio.ios.tests.FullOnboardingTest"/>
+        </classes>
+    </test>
+
+</suite>

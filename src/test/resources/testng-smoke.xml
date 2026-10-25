@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+
+<!--
+  SMOKE (`mvn test -Psmoke`) — the critical path in a few minutes: Home loads,
+  tabs work, a food is searched and logged with its calories, and one core
+  check per module (water, activity, fasting, meal plans, profile, insights, coach, scan).
+  Starts from the onboarded baseline like regression; no onboarding tests.
+-->
+<suite name="iOS Nutrition App smoke" verbose="1" parallel="false">
+
+    <test name="smoke">
+        <groups>
+            <run>
+                <include name="smoke"/>
+                <exclude name="ai"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.portfolio.ios.tests.home.HomeDashboardTest"/>
+            <class name="com.portfolio.ios.tests.food.FoodLoggingTest"/>
+            <class name="com.portfolio.ios.tests.food.FoodEditDeleteTest"/>
+            <class name="com.portfolio.ios.tests.trackers.HomeTrackersTest"/>
+            <class name="com.portfolio.ios.tests.activities.ActivitiesTest"/>
+            <class name="com.portfolio.ios.tests.fasting.FastingTest"/>
+            <class name="com.portfolio.ios.tests.meals.MealPlanTest"/>
+            <class name="com.portfolio.ios.tests.profile.ProfileSettingsTest"/>
+            <class name="com.portfolio.ios.tests.insights.InsightsTest"/>
+            <class name="com.portfolio.ios.tests.coach.CoachTest"/>
+            <class name="com.portfolio.ios.tests.scan.ScanTest"/>
+            <class name="com.portfolio.ios.tests.date.DateNavigationTest"/>
+        </classes>
+    </test>
+
+</suite>
